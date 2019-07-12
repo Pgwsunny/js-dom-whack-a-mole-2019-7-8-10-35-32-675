@@ -25,7 +25,7 @@ window.onload = function () {
         setTimeout(() => {
             startBtn.classList.remove('animate');
             startBtn.style.display = 'none';
-        }, 700);
+        }, 500);
     }
 
 
@@ -34,7 +34,10 @@ window.onload = function () {
         peep();
 
         setTimeout(() => {
-            // TODO: 写当游戏时间结束后要发生的事
+            document.getElementById("title").innerText = "TIME UP";
+            startBtn.classList.remove("animate");
+            startBtn.style.removeProperty("display");
+            startBtn.innerText = "reply";
         }, gameTime)
     }
 
@@ -43,6 +46,10 @@ window.onload = function () {
      */
     function resetScoreAndTime() {
         // TODO: 写游戏的初始化设置
+        /*把袋鼠上一个出现的位置存储到localStorage中*/
+        if(window.localStorage){
+            localStorage.setItem('position', '');
+        }
     }
 
     /**
@@ -50,8 +57,15 @@ window.onload = function () {
      */
     function peep() {
         const time = randomTime(200, 1000);
-        const hole = randomHole(holes);
-        comeOutAndStop(hole, time);
+        var as = setInterval(function () {
+            var startTime = new Date().getTime();
+            if((new Date().getTime() - startTime)>=gameTime){
+                clearInterval(as);
+            }else{
+                const hole = randomHole(holes);
+                comeOutAndStop(hole, time);
+            }
+        },800);
     }
 
     /**
@@ -63,7 +77,8 @@ window.onload = function () {
      */
     function randomTime(min, max) {
         // TODO: 写生成随机数的逻辑，
-        return 0;
+        var rand = parseInt(Math.random()*(max-min+1)+min,10);
+        return rand;
     }
 
     /**
@@ -74,7 +89,14 @@ window.onload = function () {
      */
     function randomHole(holes) {
         // TODO: 写地鼠随机选择钻出地洞的逻辑，如果与上一个是相同地洞，则重新选择一个地洞.
-        return null;
+
+        var lastPosition = localStorage.getItem("position");
+        var rand = Math.floor(Math.random()*6);
+        while (lastPosition ==rand ){
+            rand = Math.floor(Math.random()*6);
+        }
+        localStorage.setItem("position",rand);
+        return rand;
     }
 
     /**
@@ -85,6 +107,14 @@ window.onload = function () {
      */
     function comeOutAndStop(hole, time) {
         // TODO: 写地鼠出洞并停留相应时间，如果游戏时间未结束(timeUp)，继续出洞(peep).
+        var startTime = new Date().getTime();
+        holes[hole].classList.add("up");
+        var interval = setInterval(function () {
+            if((new Date().getTime()-startTime) >= time){
+                clearInterval(interval);
+                holes[hole].classList.remove("up");
+            }
+        },80);
     }
 
     /**
@@ -92,6 +122,8 @@ window.onload = function () {
      */
     moles.forEach(mole => mole.addEventListener('click', function (e) {
         // TODO: 在这里写用户点击地鼠发生的事.
+        score++;
+        document.getElementById("score").innerText = score;
     }));
 
 };
